@@ -129,7 +129,7 @@ function processCalculation() {
   const result = calculate();
   display.textContent = "";
 
-  if (result.includes("Cannot divide by zero")) {
+  if (result === "Cannot divide by zero") {
     resetCalculator();
     setDisplayValue(result);
   } else {
