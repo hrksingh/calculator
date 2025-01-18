@@ -43,7 +43,7 @@ function setDisplayValue(value) {
     display.textContent = "";
   }
 
-  if (value.includes("Cannot divide by zero")) {
+  if (typeof value === "string" && value.includes("Cannot divide by zero")) {
     showError("Cannot divide by zero", "40px");
     return;
   }
@@ -74,7 +74,10 @@ function calculate() {
     return display.textContent;
   }
 
-  const result = operations[currentOperator]?.(firstOperand, secondOperand);
+  const result = operations[currentOperator]?.(
+    parseFloat(firstOperand),
+    parseFloat(secondOperand)
+  );
   return result !== undefined ? result : display.textContent;
 }
 
@@ -92,11 +95,47 @@ function handleOperand(event) {
     display.textContent = "";
     state.operatorClicked = false;
     removeActiveOperator();
+    state.secondOperand = event.target.textContent;
   }
   setDisplayValue(event.target.textContent);
 }
 
 function handleOperator(event) {
+  if (state.firstOperand !== null && state.secondOperand !== null) {
+    processCalculation();
+    removeActiveOperator();
+  }
+
+  if (state.hasFirstOperand) {
+    event.target.classList.add("active-operator");
+  }
+
+  if (state.currentOperator !== null) {
+    if (
+      state.currentOperator === event.target.textContent &&
+      state.secondOperand === null
+    ) {
+      let tempValue = getCurrentValue();
+      display.textContent = "0";
+      setDisplayValue(tempValue);
+      state.operatorClicked = true;
+      return;
+    }
+
+    if (
+      state.currentOperator !== event.target.textContent &&
+      state.secondOperand === null
+    ) {
+      removeActiveOperator();
+      let tempValue = getCurrentValue();
+      display.textContent = "0";
+      state.currentOperator = event.target.textContent;
+      event.target.classList.add("active-operator");
+      setDisplayValue(tempValue);
+      state.operatorClicked = true;
+      return;
+    }
+  }
   state.currentOperator = event.target.textContent;
   state.operatorClicked = true;
 
@@ -104,14 +143,7 @@ function handleOperator(event) {
     state.firstOperand = getCurrentValue();
   } else {
     state.secondOperand = getCurrentValue();
-  }
-
-  if (state.firstOperand !== null && state.secondOperand !== null) {
-    processCalculation();
-  }
-  removeActiveOperator();
-  if (state.hasFirstOperand) {
-    event.target.classList.add("active-operator");
+    operatorClicked = false;
   }
 }
 
