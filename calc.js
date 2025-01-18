@@ -172,9 +172,13 @@ function processCalculation() {
 }
 
 function formatResult(number) {
-  // Handle decimal places to avoid long floating point numbers
-  return number;
-  //Number.isInteger(number) ? number.toString() : number.toFixed(8).replace(/\.?0+$/, '');
+  if (typeof number === "number" && !isNaN(number)) {
+    if (number.toString().split(".")[1]?.length > 4) {
+      return Number(number.toFixed(4));
+    }
+    return number;
+  }
+  return null;
 }
 
 function toggleSign() {
